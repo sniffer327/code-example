@@ -1,0 +1,64 @@
+<div class="column__head">
+	<div class="column__title">
+		Список
+	</div>
+	<div class="column__filter-features filter-features">
+		<button *ngIf="hasFilters" (click)="clearFilters(true)" type="button" class="filter-features__clearing-btn">
+			<app-icon icon="clear-multiselect"></app-icon>
+			Очистить фильтр
+		</button>
+
+		<button
+			app-button
+			(click)="showFilter()"
+			class="button button--mini"
+			type="button">
+
+			{{ isFilterShown ? 'Скрыть фильтр' : 'Показать фильтр' }}
+		</button>
+	</div>
+</div>
+
+<app-realty-list-filter
+	*ngIf="isFilterShown"
+	[showActivity]="showActivity"
+	[filters]="realtyFilterService.filters"
+	(applyFilters)="applyFilters($event)"
+	(clearFilters)="clearFilters()">
+</app-realty-list-filter>
+
+<div
+	appScroll
+	(scrolled)="loadMoreRealty()"
+	class="column__content"
+	[ngClass]="{
+		'column__content--scroll-disabled': showFirstRealtyLoader,
+		'column__content--filter-shown': isFilterShown
+	}">
+
+	<app-loader *ngIf="showFirstRealtyLoader; else realtyBlock;"></app-loader>
+
+	<ng-template #realtyBlock>
+
+		<ng-container *ngIf="realtyList.length > 0; else realtyNotFound;">
+			<app-realty-list-table
+				[realtyList]="realtyList"
+				[columns]="columns"
+				[sort]="sort"
+				(clicked)="goToRealty($event)"
+				(changeSorting)="changeSorting($event)">
+			</app-realty-list-table>
+
+			<div *ngIf="!isLastPage" class="column__content-loader">
+				<app-loader></app-loader>
+			</div>
+		</ng-container>
+
+		<ng-template #realtyNotFound>
+			<div class="column__content__centered-message">
+				Ничего не найдено
+			</div>
+		</ng-template>
+
+	</ng-template>
+</div>
